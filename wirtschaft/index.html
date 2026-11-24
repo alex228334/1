@@ -1,0 +1,465 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Wirtschaft Lernhilfe</title>
+<style>
+:root{
+  --bg:#f6f5f1; --card:#ffffff; --ink:#1d1f24; --muted:#6a6f7a; --line:#e3e1da;
+  --accent:#2f6fde; --accent-soft:#e6eefc; --ok:#1e8a4c; --ok-soft:#e3f4ea; --bad:#c23a3a; --bad-soft:#fbe7e7;
+  --supply:#d9822b; --demand:#2f6fde;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#15171b; --card:#1f2228; --ink:#eceef2; --muted:#9aa0ab; --line:#2f333b;
+    --accent:#6c9cf0; --accent-soft:#233351; --ok:#4cc27f; --ok-soft:#1c3427; --bad:#ef6b6b; --bad-soft:#3d2224;
+    --supply:#f0a259; --demand:#6c9cf0;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#15171b; --card:#1f2228; --ink:#eceef2; --muted:#9aa0ab; --line:#2f333b;
+  --accent:#6c9cf0; --accent-soft:#233351; --ok:#4cc27f; --ok-soft:#1c3427; --bad:#ef6b6b; --bad-soft:#3d2224;
+  --supply:#f0a259; --demand:#6c9cf0;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+header{position:sticky;top:0;z-index:5;background:var(--bg);border-bottom:1px solid var(--line)}
+.wrap{max-width:860px;margin:0 auto;padding:0 16px}
+.top{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 0 8px}
+h1{font-size:1.25rem;margin:0}
+.progress{font-size:.85rem;color:var(--muted)}
+nav{display:flex;gap:6px;overflow-x:auto;padding-bottom:10px}
+nav button{flex:0 0 auto;border:1px solid var(--line);background:var(--card);color:var(--ink);padding:8px 14px;border-radius:999px;font:inherit;font-size:.92rem;cursor:pointer}
+nav button[aria-selected="true"]{background:var(--accent);border-color:var(--accent);color:#fff}
+main{padding:20px 0 60px}
+section[hidden]{display:none}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px;margin-bottom:14px}
+h2{font-size:1.15rem;margin:0 0 10px}
+h3{font-size:1rem;margin:16px 0 6px}
+p{margin:0 0 10px}
+ul{margin:0 0 10px;padding-left:20px}
+.muted{color:var(--muted)}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px}
+.chip{border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:8px;padding:6px 10px;font:inherit;font-size:.88rem;cursor:pointer}
+.chip.on{background:var(--accent-soft);border-color:var(--accent);color:var(--accent)}
+.done-btn{margin-top:8px}
+.btn{border:0;background:var(--accent);color:#fff;padding:10px 16px;border-radius:10px;font:inherit;cursor:pointer}
+.btn.ghost{background:transparent;color:var(--accent);border:1px solid var(--accent)}
+.btn:disabled{opacity:.5;cursor:default}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.formula{font-family:ui-monospace,Menlo,Consolas,monospace;background:var(--accent-soft);padding:2px 6px;border-radius:6px}
+/* Karteikarten */
+.flip{perspective:1200px;cursor:pointer;margin-bottom:14px}
+.flip-inner{position:relative;min-height:220px;transition:transform .45s;transform-style:preserve-3d}
+.flip.turned .flip-inner{transform:rotateY(180deg)}
+.face{position:absolute;inset:0;backface-visibility:hidden;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:24px;border-radius:14px;border:1px solid var(--line);background:var(--card)}
+.face.back{transform:rotateY(180deg);background:var(--accent-soft)}
+.face .term{font-size:1.4rem;font-weight:650}
+.face small{position:absolute;top:12px;left:16px;color:var(--muted)}
+/* Quiz */
+.opt{display:block;width:100%;text-align:left;border:1px solid var(--line);background:var(--card);color:var(--ink);padding:12px 14px;border-radius:10px;margin-bottom:8px;font:inherit;cursor:pointer}
+.opt:hover:not(:disabled){border-color:var(--accent)}
+.opt.right{background:var(--ok-soft);border-color:var(--ok)}
+.opt.wrong{background:var(--bad-soft);border-color:var(--bad)}
+.opt:disabled{cursor:default}
+.explain{border-left:3px solid var(--accent);padding:8px 12px;background:var(--accent-soft);border-radius:0 8px 8px 0;margin:10px 0}
+.bar{height:6px;background:var(--line);border-radius:6px;overflow:hidden;margin-bottom:14px}
+.bar>i{display:block;height:100%;background:var(--accent);width:0;transition:width .3s}
+/* Glossar */
+input[type=search]{width:100%;padding:11px 14px;border-radius:10px;border:1px solid var(--line);background:var(--card);color:var(--ink);font:inherit;margin-bottom:14px}
+dl{margin:0}
+dt{font-weight:650;margin-top:12px}
+dd{margin:2px 0 0;color:var(--ink)}
+/* Diagramm */
+svg{width:100%;height:auto;display:block}
+.slider{display:grid;grid-template-columns:150px 1fr;gap:10px;align-items:center;margin:8px 0}
+input[type=range]{width:100%}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:8px;margin-top:10px}
+.stat{background:var(--bg);border-radius:10px;padding:10px;font-size:.85rem;overflow-wrap:anywhere}
+.stat b{display:block;font-size:1.2rem}
+@media (max-width:520px){.slider{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<header>
+  <div class="wrap">
+    <div class="top">
+      <h1>📈 Wirtschaft – Lernhilfe</h1>
+      <span class="progress" id="prog"></span>
+    </div>
+    <nav role="tablist">
+      <button role="tab" data-tab="lernen" aria-selected="true">Lernen</button>
+      <button role="tab" data-tab="karten">Karteikarten</button>
+      <button role="tab" data-tab="quiz">Quiz</button>
+      <button role="tab" data-tab="markt">Marktdiagramm</button>
+      <button role="tab" data-tab="glossar">Glossar</button>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap">
+  <section id="lernen">
+    <div class="chips" id="topicChips"></div>
+    <div id="topicBody"></div>
+  </section>
+
+  <section id="karten" hidden>
+    <div class="chips" id="cardChips"></div>
+    <div class="flip" id="flip" tabindex="0" aria-label="Karte umdrehen">
+      <div class="flip-inner">
+        <div class="face front"><small id="cardNo"></small><div class="term" id="cardFront"></div><p class="muted" style="margin-top:12px">Tippen zum Umdrehen</p></div>
+        <div class="face back"><p id="cardBack"></p></div>
+      </div>
+    </div>
+    <div class="row">
+      <button class="btn ghost" id="prevCard">← Zurück</button>
+      <button class="btn ghost" id="shuffle">Mischen</button>
+      <button class="btn" id="nextCard">Weiter →</button>
+    </div>
+  </section>
+
+  <section id="quiz" hidden>
+    <div class="card" id="quizBox"></div>
+  </section>
+
+  <section id="markt" hidden>
+    <div class="card">
+      <h2>Angebot, Nachfrage und Gleichgewichtspreis</h2>
+      <p class="muted">Verschiebe die Kurven und beobachte, wie sich Gleichgewichtspreis und -menge ändern.</p>
+      <svg id="chart" viewBox="0 0 400 300" role="img" aria-label="Marktdiagramm"></svg>
+      <div class="slider"><label for="dem">Nachfrage verschieben</label><input id="dem" type="range" min="-30" max="30" value="0"></div>
+      <div class="slider"><label for="sup">Angebot verschieben</label><input id="sup" type="range" min="-30" max="30" value="0"></div>
+      <div class="slider"><label for="price">Festgelegter Preis</label><input id="price" type="range" min="10" max="90" value="50"></div>
+      <div class="stats">
+        <div class="stat"><span class="muted">Gleichgewichtspreis</span><b id="pStar"></b></div>
+        <div class="stat"><span class="muted">Gleichgewichtsmenge</span><b id="qStar"></b></div>
+        <div class="stat"><span class="muted">Beim festgelegten Preis</span><b id="gap"></b></div>
+      </div>
+      <p class="explain" id="marketText" style="margin-top:12px"></p>
+    </div>
+  </section>
+
+  <section id="glossar" hidden>
+    <input type="search" id="search" placeholder="Begriff suchen …">
+    <div class="card"><dl id="glossList"></dl></div>
+  </section>
+</main>
+
+<script>
+const TOPICS = [
+ {id:"grund", title:"Bedürfnisse & Güter", html:`
+  <p>Wirtschaften heißt, mit <b>knappen Gütern</b> möglichst viele <b>Bedürfnisse</b> zu befriedigen.</p>
+  <h3>Bedürfnisse</h3>
+  <ul><li><b>Existenzbedürfnisse</b>: lebensnotwendig (Essen, Wohnen, Kleidung)</li>
+  <li><b>Kulturbedürfnisse</b>: steigern die Lebensqualität (Bücher, Kino, Bildung)</li>
+  <li><b>Luxusbedürfnisse</b>: gehen über das Übliche hinaus (Sportwagen, Yacht)</li></ul>
+  <p><b>Bedarf</b> = Bedürfnis + Kaufkraft. Wird der Bedarf am Markt wirksam, spricht man von <b>Nachfrage</b>.</p>
+  <h3>Maslowsche Bedürfnispyramide</h3>
+  <p>Von unten nach oben: Grundbedürfnisse → Sicherheit → soziale Bedürfnisse → Anerkennung → Selbstverwirklichung.</p>
+  <h3>Güter</h3>
+  <ul><li><b>Freie Güter</b>: unbegrenzt vorhanden, kostenlos (Luft, Sonnenlicht)</li>
+  <li><b>Wirtschaftliche Güter</b>: knapp, haben einen Preis</li>
+  <li><b>Sachgüter</b> (Konsum- / Produktionsgüter), <b>Dienstleistungen</b>, <b>Rechte</b></li>
+  <li><b>Komplementärgüter</b> ergänzen sich (Auto & Benzin), <b>Substitutionsgüter</b> ersetzen sich (Butter & Margarine)</li></ul>
+  <h3>Ökonomisches Prinzip</h3>
+  <ul><li><b>Maximalprinzip</b>: mit gegebenen Mitteln den größtmöglichen Nutzen erzielen</li>
+  <li><b>Minimalprinzip</b>: ein gegebenes Ziel mit möglichst geringen Mitteln erreichen</li></ul>`},
+ {id:"faktoren", title:"Produktionsfaktoren", html:`
+  <p>Volkswirtschaftliche Produktionsfaktoren:</p>
+  <ul><li><b>Arbeit</b> – Entgelt: Lohn</li><li><b>Boden</b> (Natur) – Entgelt: Pacht/Miete</li><li><b>Kapital</b> (Maschinen, Gebäude) – Entgelt: Zins</li><li>oft ergänzt: <b>Wissen / Bildung</b></li></ul>
+  <p>Betriebswirtschaftliche Produktionsfaktoren nach Gutenberg: ausführende Arbeit, Betriebsmittel, Werkstoffe und dispositiver Faktor (Leitung, Planung, Organisation).</p>
+  <h3>Arbeitsteilung</h3>
+  <p>Spezialisierung erhöht die Produktivität, schafft aber Abhängigkeiten und kann zu monotoner Arbeit führen.</p>
+  <p><b>Produktivität</b> = <span class="formula">Output ÷ Input</span> (Mengen)<br>
+  <b>Wirtschaftlichkeit</b> = <span class="formula">Ertrag ÷ Aufwand</span> (Geldwerte)<br>
+  <b>Rentabilität</b> = <span class="formula">Gewinn ÷ Kapital × 100 %</span></p>`},
+ {id:"kreislauf", title:"Wirtschaftskreislauf", html:`
+  <p>Der Wirtschaftskreislauf zeigt Güter- und Geldströme zwischen den Wirtschaftssubjekten.</p>
+  <h3>Einfacher Kreislauf</h3>
+  <p><b>Haushalte</b> bieten Arbeit an und erhalten Einkommen. Mit dem Einkommen kaufen sie Konsumgüter von den <b>Unternehmen</b>. Güterstrom und Geldstrom laufen entgegengesetzt.</p>
+  <h3>Erweiterter Kreislauf</h3>
+  <ul><li><b>Staat</b>: erhebt Steuern, zahlt Transfers und Gehälter, kauft Güter</li>
+  <li><b>Banken</b> (Vermögensänderung): sammeln Ersparnisse, vergeben Kredite für Investitionen</li>
+  <li><b>Ausland</b>: Export und Import</li></ul>
+  <p>Im Gleichgewicht gilt in der geschlossenen Volkswirtschaft ohne Staat: <span class="formula">Sparen = Investieren</span>.</p>`},
+ {id:"markt", title:"Markt & Preisbildung", html:`
+  <p>Ein <b>Markt</b> ist jeder Ort, an dem Angebot und Nachfrage zusammentreffen.</p>
+  <h3>Nachfrage</h3><p>Je höher der Preis, desto geringer die nachgefragte Menge (fallende Kurve). Verschiebung der Kurve z. B. durch Einkommen, Geschmack, Preise anderer Güter.</p>
+  <h3>Angebot</h3><p>Je höher der Preis, desto größer die angebotene Menge (steigende Kurve). Verschiebung z. B. durch Produktionskosten, Technik, Anzahl der Anbieter.</p>
+  <h3>Gleichgewicht</h3>
+  <p>Im Schnittpunkt liegen <b>Gleichgewichtspreis</b> und <b>Gleichgewichtsmenge</b>; der Markt wird geräumt.</p>
+  <ul><li>Preis über dem Gleichgewicht → <b>Angebotsüberhang</b> → Preis sinkt</li>
+  <li>Preis unter dem Gleichgewicht → <b>Nachfrageüberhang</b> → Preis steigt</li></ul>
+  <h3>Funktionen des Preises</h3>
+  <p>Signal-/Informationsfunktion, Lenkungsfunktion, Ausgleichsfunktion (Markträumung), Auslesefunktion.</p>
+  <h3>Staatliche Eingriffe</h3>
+  <ul><li><b>Höchstpreis</b> (unter dem Gleichgewicht, z. B. Mietpreisbremse) → Nachfrageüberhang, Schwarzmärkte</li>
+  <li><b>Mindestpreis</b> (über dem Gleichgewicht, z. B. Mindestlohn) → Angebotsüberhang</li></ul>
+  <h3>Preiselastizität der Nachfrage</h3>
+  <p><span class="formula">E = (%-Änderung Menge) ÷ (%-Änderung Preis)</span><br>|E| &gt; 1: elastisch, |E| &lt; 1: unelastisch (z. B. Benzin, Medikamente).</p>`},
+ {id:"marktformen", title:"Marktformen & Wettbewerb", html:`
+  <table style="width:100%;border-collapse:collapse;font-size:.92rem">
+  <tr><th style="text-align:left;padding:6px;border-bottom:1px solid var(--line)">Anbieter ↓ / Nachfrager →</th><th style="text-align:left;padding:6px;border-bottom:1px solid var(--line)">viele</th><th style="text-align:left;padding:6px;border-bottom:1px solid var(--line)">wenige</th><th style="text-align:left;padding:6px;border-bottom:1px solid var(--line)">einer</th></tr>
+  <tr><td style="padding:6px"><b>viele</b></td><td style="padding:6px">Polypol</td><td style="padding:6px">Nachfrageoligopol</td><td style="padding:6px">Nachfragemonopol</td></tr>
+  <tr><td style="padding:6px"><b>wenige</b></td><td style="padding:6px">Angebotsoligopol</td><td style="padding:6px">bilaterales Oligopol</td><td style="padding:6px">beschränktes Nachfragemonopol</td></tr>
+  <tr><td style="padding:6px"><b>einer</b></td><td style="padding:6px">Angebotsmonopol</td><td style="padding:6px">beschränktes Angebotsmonopol</td><td style="padding:6px">bilaterales Monopol</td></tr></table>
+  <h3>Vollkommener Markt</h3>
+  <p>Homogene Güter, vollständige Markttransparenz, keine Präferenzen (sachlich, persönlich, räumlich, zeitlich), sofortige Reaktion.</p>
+  <h3>Wettbewerbsbeschränkungen</h3>
+  <ul><li><b>Kartell</b>: Absprachen rechtlich selbstständiger Unternehmen (grundsätzlich verboten)</li>
+  <li><b>Fusion</b>: Zusammenschluss; das <b>Bundeskartellamt</b> prüft Fusionen</li>
+  <li>Rechtsgrundlage: <b>GWB</b> (Gesetz gegen Wettbewerbsbeschränkungen)</li></ul>`},
+ {id:"ordnung", title:"Wirtschaftsordnungen", html:`
+  <ul><li><b>Freie Marktwirtschaft</b> (Adam Smith): Privateigentum, Vertragsfreiheit, Steuerung über den Markt, Staat nur „Nachtwächter“.</li>
+  <li><b>Zentralverwaltungswirtschaft</b>: Staatseigentum an Produktionsmitteln, zentraler Plan legt Produktion und Preise fest.</li>
+  <li><b>Soziale Marktwirtschaft</b> (Ludwig Erhard, Alfred Müller-Armack): Marktwirtschaft mit sozialem Ausgleich.</li></ul>
+  <h3>Merkmale der Sozialen Marktwirtschaft</h3>
+  <ul><li>Wettbewerbspolitik (Kartellverbot)</li><li>soziale Sicherung: Renten-, Kranken-, Pflege-, Arbeitslosen-, Unfallversicherung</li>
+  <li>Umverteilung über progressive Einkommensteuer, Sozialleistungen</li><li>Tarifautonomie, Kündigungsschutz, Mitbestimmung</li></ul>`},
+ {id:"geld", title:"Geld & Inflation", html:`
+  <h3>Funktionen des Geldes</h3>
+  <ul><li>Tauschmittel</li><li>Wertaufbewahrungsmittel</li><li>Recheneinheit / Wertmaßstab</li></ul>
+  <h3>Inflation</h3>
+  <p>Anhaltender Anstieg des allgemeinen Preisniveaus = Verlust an Kaufkraft. Gemessen mit dem <b>Verbraucherpreisindex (VPI)</b> über einen <b>Warenkorb</b>.</p>
+  <ul><li><b>Nachfrageinflation</b>: Gesamtnachfrage steigt stärker als das Angebot</li>
+  <li><b>Kosteninflation</b>: steigende Löhne, Rohstoff- oder Energiepreise</li>
+  <li><b>importierte Inflation</b>: steigende Preise für Importgüter</li></ul>
+  <p><b>Deflation</b>: sinkendes Preisniveau; gefährlich, weil Konsum und Investitionen aufgeschoben werden.</p>
+  <p><b>Realeinkommen</b> ≈ Nominaleinkommen − Inflationsrate.</p>
+  <h3>Geldpolitik</h3>
+  <p>Die <b>Europäische Zentralbank (EZB)</b> soll die Preisstabilität sichern (Ziel: 2 % Inflation mittelfristig). Wichtigstes Instrument: <b>Leitzins</b>. Höherer Leitzins → Kredite teurer → weniger Nachfrage → Inflation sinkt.</p>`},
+ {id:"stabil", title:"Konjunktur & Wirtschaftspolitik", html:`
+  <h3>Magisches Viereck (Stabilitätsgesetz 1967)</h3>
+  <ul><li>Stabilität des Preisniveaus</li><li>hoher Beschäftigungsstand</li><li>außenwirtschaftliches Gleichgewicht</li><li>stetiges und angemessenes Wirtschaftswachstum</li></ul>
+  <p>„Magisch“, weil nicht alle Ziele gleichzeitig erreichbar sind (Zielkonflikte, z. B. Preisstabilität ↔ Beschäftigung). Erweiterung zum <b>Magischen Sechseck</b>: gerechte Einkommensverteilung und Umweltschutz.</p>
+  <h3>Bruttoinlandsprodukt (BIP)</h3>
+  <p>Wert aller im Inland in einem Jahr produzierten Endprodukte und Dienstleistungen. <b>Reales BIP</b> = um Preissteigerungen bereinigt → Maß für Wirtschaftswachstum.</p>
+  <h3>Konjunkturphasen</h3>
+  <ol><li><b>Aufschwung</b> (Expansion)</li><li><b>Hochkonjunktur</b> (Boom)</li><li><b>Abschwung</b> (Rezession)</li><li><b>Tiefstand</b> (Depression)</li></ol>
+  <h3>Antizyklische Fiskalpolitik (Keynes)</h3>
+  <p>Im Abschwung: Staat erhöht Ausgaben, senkt Steuern (notfalls mit Schulden). Im Boom: Staat spart und baut Schulden ab.</p>`},
+ {id:"unternehmen", title:"Unternehmen & Rechtsformen", html:`
+  <ul><li><b>Einzelunternehmen</b>: ein Inhaber, haftet unbeschränkt mit Privatvermögen</li>
+  <li><b>OHG</b>: alle Gesellschafter haften unbeschränkt, solidarisch, unmittelbar</li>
+  <li><b>KG</b>: Komplementär haftet unbeschränkt, Kommanditist nur mit Einlage</li>
+  <li><b>GmbH</b>: Haftung beschränkt auf Gesellschaftsvermögen, Stammkapital mind. 25.000 €</li>
+  <li><b>UG (haftungsbeschränkt)</b>: „Mini-GmbH“, ab 1 € Stammkapital</li>
+  <li><b>AG</b>: Grundkapital mind. 50.000 €, Organe: Vorstand, Aufsichtsrat, Hauptversammlung</li></ul>
+  <h3>Unternehmensziele</h3>
+  <p>Ökonomische (Gewinn, Umsatz, Marktanteil), soziale (sichere Arbeitsplätze) und ökologische Ziele (Ressourcenschonung). Ziele können sich ergänzen, konkurrieren oder neutral zueinander sein.</p>
+  <p><b>Gewinn</b> = <span class="formula">Umsatz − Kosten</span>; <b>Umsatz</b> = <span class="formula">Preis × Menge</span></p>`},
+];
+
+const CARDS = [
+ ["Bedarf","Bedürfnis, das mit Kaufkraft verbunden ist."],
+ ["Knappheit","Bedürfnisse sind unbegrenzt, Güter dagegen begrenzt – Grund für das Wirtschaften."],
+ ["Maximalprinzip","Mit gegebenen Mitteln einen möglichst großen Erfolg erzielen."],
+ ["Minimalprinzip","Ein festgelegtes Ziel mit möglichst geringem Mitteleinsatz erreichen."],
+ ["Komplementärgüter","Güter, die sich gegenseitig ergänzen, z. B. Drucker und Tinte."],
+ ["Substitutionsgüter","Güter, die sich gegenseitig ersetzen können, z. B. Butter und Margarine."],
+ ["Produktionsfaktoren (VWL)","Arbeit, Boden, Kapital (oft ergänzt durch Wissen)."],
+ ["Produktivität","Verhältnis von Output zu Input in Mengeneinheiten."],
+ ["Rentabilität","Gewinn im Verhältnis zum eingesetzten Kapital, in Prozent."],
+ ["Gleichgewichtspreis","Preis, bei dem angebotene und nachgefragte Menge gleich sind; der Markt wird geräumt."],
+ ["Angebotsüberhang","Preis liegt über dem Gleichgewicht: Angebot > Nachfrage, der Preis sinkt."],
+ ["Nachfrageüberhang","Preis liegt unter dem Gleichgewicht: Nachfrage > Angebot, der Preis steigt."],
+ ["Höchstpreis","Staatlich festgelegter Preis unter dem Gleichgewicht, soll Verbraucher schützen."],
+ ["Mindestpreis","Staatlich festgelegter Preis über dem Gleichgewicht, soll Anbieter schützen."],
+ ["Polypol","Marktform mit vielen Anbietern und vielen Nachfragern."],
+ ["Oligopol","Marktform mit wenigen Anbietern (z. B. Mineralölkonzerne)."],
+ ["Monopol","Nur ein Anbieter auf dem Markt (z. B. früher die Deutsche Bundespost)."],
+ ["Kartell","Absprache rechtlich selbstständiger Unternehmen über Preise, Mengen oder Gebiete – grundsätzlich verboten."],
+ ["Soziale Marktwirtschaft","Marktwirtschaft mit sozialem Ausgleich durch den Staat; Väter: Ludwig Erhard und Alfred Müller-Armack."],
+ ["Inflation","Anhaltender Anstieg des allgemeinen Preisniveaus; das Geld verliert an Kaufkraft."],
+ ["Deflation","Anhaltendes Sinken des allgemeinen Preisniveaus."],
+ ["Verbraucherpreisindex","Misst die Preisentwicklung eines repräsentativen Warenkorbs."],
+ ["Leitzins","Zinssatz, zu dem sich Geschäftsbanken bei der Zentralbank Geld leihen."],
+ ["BIP","Wert aller in einem Jahr im Inland produzierten Waren und Dienstleistungen."],
+ ["Magisches Viereck","Preisstabilität, hoher Beschäftigungsstand, außenwirtschaftliches Gleichgewicht, stetiges Wachstum."],
+ ["Rezession","Konjunkturphase mit sinkender Wirtschaftsleistung (Abschwung)."],
+ ["Antizyklische Fiskalpolitik","Der Staat handelt gegen den Konjunkturverlauf: im Abschwung mehr ausgeben, im Boom sparen."],
+ ["GmbH","Kapitalgesellschaft, Haftung auf das Gesellschaftsvermögen beschränkt, Stammkapital mind. 25.000 €."],
+ ["Komplementär","Gesellschafter einer KG, der unbeschränkt haftet."],
+ ["Kommanditist","Gesellschafter einer KG, der nur mit seiner Einlage haftet."],
+];
+
+const QUIZ = [
+ {q:"Was versteht man unter „Bedarf“?", a:["Ein Gefühl des Mangels","Ein Bedürfnis, das mit Kaufkraft ausgestattet ist","Alle Güter eines Landes","Die angebotene Menge"], c:1, e:"Bedarf = Bedürfnis + Kaufkraft. Erst wenn der Bedarf am Markt auftritt, wird er zur Nachfrage."},
+ {q:"Welches Gut ist ein freies Gut?", a:["Trinkwasser aus der Flasche","Strom","Luft zum Atmen","Ein Fahrrad"], c:2, e:"Freie Güter sind unbegrenzt verfügbar und kosten nichts – z. B. Luft oder Sonnenlicht."},
+ {q:"Ein Schüler will mit 20 € möglichst viele Hefte kaufen. Nach welchem Prinzip handelt er?", a:["Minimalprinzip","Maximalprinzip","Solidaritätsprinzip","Subsidiaritätsprinzip"], c:1, e:"Die Mittel (20 €) sind gegeben, der Erfolg soll maximal sein → Maximalprinzip."},
+ {q:"Was passiert, wenn der Preis über dem Gleichgewichtspreis liegt?", a:["Nachfrageüberhang, Preis steigt","Angebotsüberhang, Preis sinkt","Der Markt ist geräumt","Die Nachfrage steigt"], c:1, e:"Bei zu hohem Preis bieten Unternehmen mehr an, als gekauft wird → Angebotsüberhang → der Preis sinkt."},
+ {q:"Die Einkommen der Haushalte steigen. Wie verändert sich (bei normalen Gütern) die Nachfragekurve?", a:["Sie verschiebt sich nach rechts","Sie verschiebt sich nach links","Sie bleibt gleich","Sie wird senkrecht"], c:0, e:"Mehr Einkommen → bei jedem Preis wird mehr nachgefragt → Rechtsverschiebung. Gleichgewichtspreis und -menge steigen."},
+ {q:"Die Rohstoffkosten steigen stark. Was passiert mit der Angebotskurve?", a:["Rechtsverschiebung","Linksverschiebung","Keine Änderung","Sie wird flacher"], c:1, e:"Höhere Kosten → bei jedem Preis wird weniger angeboten → Linksverschiebung, Preis steigt, Menge sinkt."},
+ {q:"Der Mindestlohn ist ein Beispiel für …", a:["einen Höchstpreis","einen Mindestpreis","ein Kartell","eine Subvention"], c:1, e:"Der Mindestlohn ist ein staatlicher Mindestpreis für Arbeit; er liegt über dem Marktgleichgewicht und kann einen Angebotsüberhang an Arbeit erzeugen."},
+ {q:"Wenige Anbieter stehen vielen Nachfragern gegenüber. Diese Marktform heißt …", a:["Polypol","Angebotsoligopol","Angebotsmonopol","bilaterales Monopol"], c:1, e:"Wenige Anbieter + viele Nachfrager = Angebotsoligopol (z. B. Tankstellenmarkt)."},
+ {q:"Welche Behörde in Deutschland überwacht Kartelle und Fusionen?", a:["Bundesbank","Bundeskartellamt","Statistisches Bundesamt","Bundesrat"], c:1, e:"Das Bundeskartellamt (Bonn) setzt das Gesetz gegen Wettbewerbsbeschränkungen (GWB) durch."},
+ {q:"Wer gilt als „Vater“ der Sozialen Marktwirtschaft?", a:["Karl Marx","Adam Smith","Ludwig Erhard","John Maynard Keynes"], c:2, e:"Ludwig Erhard setzte die Soziale Marktwirtschaft als Wirtschaftsminister um; der Begriff stammt von Alfred Müller-Armack."},
+ {q:"Welche ist KEINE Funktion des Geldes?", a:["Tauschmittel","Wertaufbewahrungsmittel","Recheneinheit","Produktionsfaktor"], c:3, e:"Geld ist Tauschmittel, Wertaufbewahrungsmittel und Recheneinheit – aber kein Produktionsfaktor."},
+ {q:"Dein Lohn steigt um 3 %, die Inflation beträgt 5 %. Was gilt?", a:["Dein Reallohn steigt um 8 %","Dein Reallohn sinkt um etwa 2 %","Dein Reallohn steigt um 2 %","Nichts ändert sich"], c:1, e:"Realer Lohnzuwachs ≈ 3 % − 5 % = −2 %. Du kannst dir weniger leisten als vorher."},
+ {q:"Wie kann die EZB eine hohe Inflation bekämpfen?", a:["Leitzins senken","Leitzins erhöhen","Mehr Geld drucken","Steuern senken"], c:1, e:"Ein höherer Leitzins macht Kredite teurer, dämpft Nachfrage und Investitionen und senkt so den Preisauftrieb."},
+ {q:"Welches Ziel gehört NICHT zum Magischen Viereck?", a:["Preisniveaustabilität","Hoher Beschäftigungsstand","Umweltschutz","Außenwirtschaftliches Gleichgewicht"], c:2, e:"Umweltschutz und gerechte Einkommensverteilung kommen erst im Magischen Sechseck hinzu."},
+ {q:"Warum heißt das Magische Viereck „magisch“?", a:["Weil es geheim ist","Weil nicht alle Ziele gleichzeitig vollständig erreicht werden können","Weil es aus der Antike stammt","Weil es nur in Deutschland gilt"], c:1, e:"Zwischen den Zielen gibt es Zielkonflikte – sie gleichzeitig zu erreichen, wäre „Zauberei“."},
+ {q:"Was beschreibt das reale BIP?", a:["Das BIP in aktuellen Preisen","Das BIP bereinigt um Preissteigerungen","Das BIP pro Kopf","Die Staatsschulden"], c:1, e:"Das reale BIP rechnet die Inflation heraus und zeigt das tatsächliche Wachstum der Produktion."},
+ {q:"Im Abschwung erhöht der Staat seine Ausgaben. Das nennt man …", a:["prozyklische Politik","antizyklische Fiskalpolitik","Geldpolitik der EZB","Angebotspolitik"], c:1, e:"Antizyklisch (nach Keynes): gegen den Konjunkturverlauf steuern – im Abschwung Nachfrage stützen."},
+ {q:"Im einfachen Wirtschaftskreislauf fließt Geld von den Unternehmen zu den Haushalten als …", a:["Konsumausgaben","Einkommen (Lohn)","Steuern","Subventionen"], c:1, e:"Haushalte stellen Arbeit zur Verfügung und erhalten dafür Einkommen. Mit Konsumausgaben fließt das Geld zurück."},
+ {q:"Wie haftet ein Gesellschafter einer OHG?", a:["Nur mit der Einlage","Gar nicht","Unbeschränkt mit dem Privatvermögen","Nur mit dem Gesellschaftsvermögen"], c:2, e:"OHG-Gesellschafter haften unbeschränkt, unmittelbar und solidarisch – auch mit dem Privatvermögen."},
+ {q:"Wie hoch ist das Mindeststammkapital einer GmbH?", a:["1 €","25.000 €","50.000 €","100.000 €"], c:1, e:"GmbH: 25.000 € Stammkapital; AG: 50.000 € Grundkapital; UG: ab 1 €."},
+ {q:"Ein Unternehmen setzt 2.000 Stück zu je 15 € ab, die Kosten betragen 22.000 €. Wie hoch ist der Gewinn?", a:["8.000 €","30.000 €","7.000 €","52.000 €"], c:0, e:"Umsatz = 2.000 × 15 € = 30.000 €. Gewinn = 30.000 € − 22.000 € = 8.000 €."},
+ {q:"Preis steigt um 10 %, nachgefragte Menge sinkt um 2 %. Die Nachfrage ist …", a:["elastisch","unelastisch","vollkommen elastisch","steigend"], c:1, e:"|E| = 2 % ÷ 10 % = 0,2 < 1 → unelastisch. Typisch für lebensnotwendige Güter wie Benzin."},
+];
+
+/* Speicher (optional) */
+const store = {
+  get(k,d){try{const v=localStorage.getItem("wl_"+k);return v?JSON.parse(v):d}catch(e){return d}},
+  set(k,v){try{localStorage.setItem("wl_"+k,JSON.stringify(v))}catch(e){}}
+};
+let doneTopics = new Set(store.get("done",[]));
+let bestScore = store.get("best",null);
+function updateProg(){
+  document.getElementById("prog").textContent =
+    `${doneTopics.size}/${TOPICS.length} Themen` + (bestScore!==null?` · Bestes Quiz: ${bestScore}%`:"");
+}
+
+/* Tabs */
+document.querySelectorAll("nav button").forEach(b=>b.onclick=()=>{
+  document.querySelectorAll("nav button").forEach(x=>x.setAttribute("aria-selected", x===b));
+  document.querySelectorAll("main section").forEach(s=>s.hidden = s.id!==b.dataset.tab);
+  if(b.dataset.tab==="markt") drawMarket();
+  window.scrollTo(0,0);
+});
+
+/* Lernen */
+let curTopic = 0;
+function renderTopics(){
+  const chips=document.getElementById("topicChips");
+  chips.innerHTML="";
+  TOPICS.forEach((t,i)=>{
+    const c=document.createElement("button");
+    c.className="chip"+(i===curTopic?" on":"");
+    c.textContent=(doneTopics.has(t.id)?"✓ ":"")+t.title;
+    c.onclick=()=>{curTopic=i;renderTopics()};
+    chips.appendChild(c);
+  });
+  const t=TOPICS[curTopic], done=doneTopics.has(t.id);
+  document.getElementById("topicBody").innerHTML=
+   `<div class="card"><h2>${t.title}</h2>${t.html}
+    <div class="row done-btn"><button class="btn ${done?"ghost":""}" id="markDone">${done?"✓ Gelernt":"Als gelernt markieren"}</button>
+    ${curTopic<TOPICS.length-1?`<button class="btn ghost" id="nextTopic">Nächstes Thema →</button>`:""}</div></div>`;
+  document.getElementById("markDone").onclick=()=>{
+    done?doneTopics.delete(t.id):doneTopics.add(t.id);
+    store.set("done",[...doneTopics]);updateProg();renderTopics();
+  };
+  const n=document.getElementById("nextTopic");
+  if(n) n.onclick=()=>{curTopic++;renderTopics();window.scrollTo(0,0)};
+}
+
+/* Karteikarten */
+let deck=CARDS.map((_,i)=>i), ci=0;
+const flip=document.getElementById("flip");
+function showCard(){
+  flip.classList.remove("turned");
+  const [f,b]=CARDS[deck[ci]];
+  setTimeout(()=>{
+    document.getElementById("cardFront").textContent=f;
+    document.getElementById("cardBack").textContent=b;
+  }, flip.classList.contains("turned")?0:0);
+  document.getElementById("cardNo").textContent=`${ci+1} / ${deck.length}`;
+}
+flip.onclick=()=>flip.classList.toggle("turned");
+flip.onkeydown=e=>{if(e.key===" "||e.key==="Enter"){e.preventDefault();flip.classList.toggle("turned")}};
+document.getElementById("nextCard").onclick=()=>{ci=(ci+1)%deck.length;showCard()};
+document.getElementById("prevCard").onclick=()=>{ci=(ci-1+deck.length)%deck.length;showCard()};
+document.getElementById("shuffle").onclick=()=>{
+  for(let i=deck.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[deck[i],deck[j]]=[deck[j],deck[i]]}
+  ci=0;showCard();
+};
+
+/* Quiz */
+let qOrder=[], qi=0, score=0, answered=false;
+function shuffled(a){a=[...a];for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
+function startQuiz(){qOrder=shuffled(QUIZ.map((_,i)=>i));qi=0;score=0;renderQ()}
+function renderQ(){
+  const box=document.getElementById("quizBox");
+  if(qi>=qOrder.length){
+    const pct=Math.round(score/qOrder.length*100);
+    if(bestScore===null||pct>bestScore){bestScore=pct;store.set("best",pct);updateProg()}
+    const note = pct>=90?"Hervorragend! Du bist bestens vorbereitet. 🎉":pct>=70?"Gut gemacht! Wiederhole die Themen, bei denen du unsicher warst.":pct>=50?"Solide Basis – schau dir die Erklärungen noch einmal an.":"Lies die Themen unter „Lernen“ noch einmal durch und versuche es erneut.";
+    box.innerHTML=`<h2>Ergebnis</h2><p style="font-size:2rem;font-weight:700;margin:6px 0">${score} / ${qOrder.length} (${pct} %)</p><p>${note}</p><button class="btn" id="again">Nochmal</button>`;
+    document.getElementById("again").onclick=startQuiz;return;
+  }
+  answered=false;
+  const it=QUIZ[qOrder[qi]];
+  const opts=shuffled(it.a.map((t,i)=>({t,i})));
+  box.innerHTML=`<div class="bar"><i style="width:${qi/qOrder.length*100}%"></i></div>
+   <p class="muted">Frage ${qi+1} von ${qOrder.length} · Punkte: ${score}</p>
+   <h2>${it.q}</h2><div id="opts"></div><div id="fb"></div>`;
+  const wrap=document.getElementById("opts");
+  opts.forEach(o=>{
+    const b=document.createElement("button");b.className="opt";b.textContent=o.t;
+    b.onclick=()=>{
+      if(answered)return;answered=true;
+      const ok=o.i===it.c; if(ok)score++;
+      wrap.querySelectorAll(".opt").forEach((x,k)=>{x.disabled=true;if(opts[k].i===it.c)x.classList.add("right")});
+      if(!ok)b.classList.add("wrong");
+      document.getElementById("fb").innerHTML=`<div class="explain"><b>${ok?"Richtig!":"Leider falsch."}</b> ${it.e}</div>
+       <button class="btn" id="nextQ">${qi<qOrder.length-1?"Nächste Frage →":"Ergebnis anzeigen"}</button>`;
+      document.getElementById("nextQ").onclick=()=>{qi++;renderQ()};
+    };
+    wrap.appendChild(b);
+  });
+}
+
+/* Marktdiagramm: P = a + b·Q (Angebot), P = c − d·Q (Nachfrage) */
+function drawMarket(){
+  const dShift=+dem.value, sShift=+sup.value, fixed=+price.value;
+  const a=10-sShift*0.6, b=0.8, c=90+dShift*0.8, d=0.8;
+  const q=(c-a)/(b+d), p=a+b*q;
+  const W=400,H=300,L=40,B=30,R=10,T=10;
+  const X=Q=>L+Q/100*(W-L-R), Y=P=>H-B-P/100*(H-B-T);
+  const css=getComputedStyle(document.documentElement);
+  const col=n=>css.getPropertyValue(n).trim();
+  const qs=(fixed-a)/b, qd=(c-fixed)/d;
+  let s=`<line x1="${L}" y1="${T}" x2="${L}" y2="${H-B}" stroke="${col('--muted')}"/>
+   <line x1="${L}" y1="${H-B}" x2="${W-R}" y2="${H-B}" stroke="${col('--muted')}"/>
+   <text x="${L-6}" y="${T+10}" text-anchor="end" font-size="12" fill="${col('--muted')}">P</text>
+   <text x="${W-R}" y="${H-8}" text-anchor="end" font-size="12" fill="${col('--muted')}">Menge</text>`;
+  // Kurven
+  s+=`<line x1="${X(0)}" y1="${Y(a)}" x2="${X(100)}" y2="${Y(a+b*100)}" stroke="${col('--supply')}" stroke-width="3"/>`;
+  s+=`<line x1="${X(0)}" y1="${Y(c)}" x2="${X(100)}" y2="${Y(c-d*100)}" stroke="${col('--demand')}" stroke-width="3"/>`;
+  s+=`<text x="${X(92)}" y="${Y(a+b*92)-8}" font-size="13" font-weight="600" fill="${col('--supply')}">A</text>`;
+  s+=`<text x="${X(92)}" y="${Y(c-d*92)-8}" font-size="13" font-weight="600" fill="${col('--demand')}">N</text>`;
+  // festgelegter Preis
+  s+=`<line x1="${L}" y1="${Y(fixed)}" x2="${W-R}" y2="${Y(fixed)}" stroke="${col('--muted')}" stroke-dasharray="5 4"/>`;
+  if(Math.abs(fixed-p)>0.5){
+    const q1=Math.max(0,Math.min(qs,qd)), q2=Math.min(100,Math.max(qs,qd));
+    s+=`<line x1="${X(q1)}" y1="${Y(fixed)}" x2="${X(q2)}" y2="${Y(fixed)}" stroke="${fixed>p?col('--bad'):col('--ok')}" stroke-width="6" opacity=".6"/>`;
+  }
+  // Gleichgewicht
+  s+=`<line x1="${X(q)}" y1="${Y(p)}" x2="${X(q)}" y2="${H-B}" stroke="${col('--ink')}" stroke-dasharray="2 3"/>
+   <line x1="${L}" y1="${Y(p)}" x2="${X(q)}" y2="${Y(p)}" stroke="${col('--ink')}" stroke-dasharray="2 3"/>
+   <circle cx="${X(q)}" cy="${Y(p)}" r="5" fill="${col('--ink')}"/>
+   <text x="${X(q)+8}" y="${Y(p)-8}" font-size="12" fill="${col('--ink')}">GG</text>`;
+  chart.innerHTML=s;
+  pStar.textContent=p.toFixed(1)+" €"; qStar.textContent=q.toFixed(1)+" Stk.";
+  let txt;
+  if(Math.abs(fixed-p)<=0.5){gap.textContent="Markt geräumt";txt="Der festgelegte Preis entspricht dem Gleichgewichtspreis: Angebot und Nachfrage sind gleich.";}
+  else if(fixed>p){gap.textContent=`Angebotsüberhang ${(qs-qd).toFixed(1)}`;txt=`Bei ${fixed} € bieten die Unternehmen ${qs.toFixed(1)} Stück an, nachgefragt werden nur ${Math.max(0,qd).toFixed(1)} Stück. Es entsteht ein <b>Angebotsüberhang</b> – ohne Eingriff würde der Preis sinken (wie bei einem <b>Mindestpreis</b>).`;}
+  else{gap.textContent=`Nachfrageüberhang ${(qd-qs).toFixed(1)}`;txt=`Bei ${fixed} € werden ${qd.toFixed(1)} Stück nachgefragt, aber nur ${Math.max(0,qs).toFixed(1)} Stück angeboten. Es entsteht ein <b>Nachfrageüberhang</b> – ohne Eingriff würde der Preis steigen (wie bei einem <b>Höchstpreis</b>).`;}
+  marketText.innerHTML=txt;
+}
+[dem,sup,price].forEach(el=>el.oninput=drawMarket);
+
+/* Glossar */
+function renderGloss(f=""){
+  const list=document.getElementById("glossList");
+  const items=[...CARDS].sort((x,y)=>x[0].localeCompare(y[0],"de"))
+    .filter(([t,d])=>(t+" "+d).toLowerCase().includes(f.toLowerCase()));
+  list.innerHTML=items.length?items.map(([t,d])=>`<dt>${t}</dt><dd>${d}</dd>`).join(""):`<p class="muted">Kein Begriff gefunden.</p>`;
+}
+document.getElementById("search").oninput=e=>renderGloss(e.target.value);
+
+renderTopics(); showCard(); startQuiz(); renderGloss(); updateProg();
+</script>
+</body>
+</html>
